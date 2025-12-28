@@ -162,16 +162,20 @@ connect(config.databaseToken)
   .then(() => console.log(`Connected to MongoDB [${config.environment}]`))
   .catch(console.error);
 
-const ap = AutoPoster(config.topggToken, client);
-ap.getStats = async () => {
-  const response = await client.cluster.fetchClientValues("guilds.cache.size");
+if (!config.isBeta) {
+  const ap = AutoPoster(config.topggToken, client);
+  ap.getStats = async () => {
+    const response = await client.cluster.fetchClientValues(
+      "guilds.cache.size"
+    );
 
-  return {
-    serverCount: response.reduce((a, b) => a + b, 0),
-    shardCount: client.cluster.info.TOTAL_SHARDS,
+    return {
+      serverCount: response.reduce((a, b) => a + b, 0),
+      shardCount: client.cluster.info.TOTAL_SHARDS,
+    };
   };
-};
-ap.on("error", (err) => {});
+  ap.on("error", (err) => {});
+}
 
 async function postToBotlistMe(client) {
   try {
@@ -200,26 +204,29 @@ async function postToBotlistMe(client) {
       throw new Error(`HTTP ${response.status}: ${errorText}`);
     }
 
-    console.log("✅ Stats successfully posted to botlist.me");
+    console.log("Stats successfully posted to botlist.me");
   } catch (error) {
-    console.error("❌ Failed to post to botlist.me:", error);
+    console.error("Failed to post to botlist.me:", error);
   }
 }
 
-setInterval(async () => {
-  try {
-    await updateDiscordsCount(client);
-    console.log("✅ Discords count updated successfully");
-  } catch (err) {
-    console.error("updateDiscordsCount failed:", err);
-  }
-  try {
-    await postToBotlistMe(client);
-    console.log("✅ Botlist.me stats posted successfully");
-  } catch (err) {
-    console.error("postToBotlistMe failed:", err);
-  }
-}, 15 * 60 * 1000);
+if (!config.isBeta) {
+  setInterval(async () => {
+    try {
+      await updateDiscordsCount(client);
+      console.log("Discords count updated successfully");
+    } catch (err) {
+      console.error("updateDiscordsCount failed:", err);
+    }
+    try {
+      await postToBotlistMe(client);
+      console.log("Botlist.me stats posted successfully");
+    } catch (err) {
+      console.error("postToBotlistMe failed:", err);
+    }
+  }, 15 * 60 * 1000);
+  console.log("Bot list stat posting enabled (15min interval)");
+}
 
 setInterval(() => {
   console.log(
