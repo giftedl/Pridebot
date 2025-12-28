@@ -16,6 +16,7 @@ const Profile = require("../../../../mongo/models/profileSchema");
 const IDLists = require("../../../../mongo/models/idSchema");
 
 const { badgeMap } = require("./profilehelper");
+const { checkAndShowProfileFeedbackSurvey } = require("./profileSurveyHandler");
 const {
   containsDisallowedContent,
 } = require("../../../config/detection/containDisallow");
@@ -200,6 +201,10 @@ async function handleView(interaction, client) {
   }
 
   await commandLogging(client, interaction);
+  
+  // Trigger profile feedback survey
+  await checkAndShowProfileFeedbackSurvey(interaction, interaction.user.id);
+  
   if (row.components.length > 0) {
     return interaction.reply({
       embeds: [embed],
@@ -353,6 +358,9 @@ async function handleUpdate(interaction, client) {
     originalProfile,
     updatedProfile
   );
+  
+  await checkAndShowProfileFeedbackSurvey(interaction, interaction.user.id);
+  
   return interaction.reply({
     content: "Profile updated successfully!",
     ephemeral: true,
@@ -474,6 +482,8 @@ async function handleSetup(interaction, client) {
 
   await commandLogging(client, interaction);
   await profileLogging(client, interaction, "created", null, newProfile);
+  await checkAndShowProfileFeedbackSurvey(interaction, interaction.user.id);
+  
   return interaction.reply({
     content: "Profile created successfully!",
     embeds: [embed],

@@ -7,6 +7,12 @@ const {
   handleRemoveWebsite,
 } = require("../../commands/Profile/profilefunctions/profilehandlers.js");
 const { handleFeedbackModal } = require("../../commands/Support/feedback.js");
+const {
+  handleProfileSurveyResponse,
+  handleQuestion1Submission,
+  handleQuestion2Response,
+  handleQuestion3Submission,
+} = require("../../commands/Profile/profilefunctions/profileSurveyHandler.js");
 const { errorlogging } = require("../../config/logging/errorlogs.js");
 const { EmbedBuilder } = require("discord.js");
 
@@ -189,6 +195,54 @@ module.exports = {
           `[FEEDBACK MODAL] ${interaction.user.tag} - ${interaction.customId}`
         );
         await handleFeedbackModal(interaction);
+      } else if (
+        interaction.isButton() &&
+        interaction.customId.startsWith("profile_survey_yes_")
+      ) {
+        console.log(
+          `[PROFILE SURVEY] ${interaction.user.tag} - Accepted survey`
+        );
+        await handleProfileSurveyResponse(interaction);
+      } else if (
+        interaction.isButton() &&
+        interaction.customId.startsWith("profile_survey_no_")
+      ) {
+        console.log(
+          `[PROFILE SURVEY] ${interaction.user.tag} - Declined survey`
+        );
+        await handleProfileSurveyResponse(interaction);
+      } else if (
+        interaction.isModalSubmit() &&
+        interaction.customId.startsWith("profile_survey_q1_")
+      ) {
+        console.log(
+          `[PROFILE SURVEY] ${interaction.user.tag} - Submitted Q1`
+        );
+        await handleQuestion1Submission(interaction);
+      } else if (
+        interaction.isButton() &&
+        interaction.customId.startsWith("profile_survey_q2_yes_")
+      ) {
+        console.log(
+          `[PROFILE SURVEY] ${interaction.user.tag} - Q2: Yes`
+        );
+        await handleQuestion2Response(interaction);
+      } else if (
+        interaction.isButton() &&
+        interaction.customId.startsWith("profile_survey_q2_no_")
+      ) {
+        console.log(
+          `[PROFILE SURVEY] ${interaction.user.tag} - Q2: No`
+        );
+        await handleQuestion2Response(interaction);
+      } else if (
+        interaction.isModalSubmit() &&
+        interaction.customId.startsWith("profile_survey_q3_")
+      ) {
+        console.log(
+          `[PROFILE SURVEY] ${interaction.user.tag} - Submitted Q3 (Complete)`
+        );
+        await handleQuestion3Submission(interaction);
       }
     } catch (error) {
       const guild = interaction.guild;
