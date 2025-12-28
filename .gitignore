@@ -5,6 +5,7 @@ pfps
 
 # Bot Files
 .env
+environment.js
 package-lock.json
 shutdown-time.txt 
 restart-time.txt

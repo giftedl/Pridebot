@@ -10,7 +10,8 @@ module.exports = (client) => {
     `Avatar API initialization started by Cluster ${getInfo().CLUSTER}.`
   );
   const app = express();
-  const port = 2611;
+  const config = require("../environment");
+  const port = config.ports.avatar;
 
   try {
     app.listen(port, () => {

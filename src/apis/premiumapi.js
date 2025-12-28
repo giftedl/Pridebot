@@ -13,7 +13,8 @@ module.exports = (client) => {
   );
 
   const app = express();
-  const port = 2613;
+  const config = require("../environment.js");
+  const port = config.ports.premium;
   const PREMIUM_CHANNEL_ID = "1450239691075883222";
   const AnnouncementChannelID = "1101742377372237906";
 

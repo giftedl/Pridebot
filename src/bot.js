@@ -2,6 +2,7 @@ const fs = require("fs");
 const path = require("path");
 const { Events } = require("discord.js");
 const { getInfo } = require("discord-hybrid-sharding");
+const config = require("./environment");
 
 const initializeApi = require("./apis/botapi");
 const initializeAvatarApi = require("./apis/avatarapi");
@@ -53,7 +54,6 @@ module.exports = (client) => {
       deleteOldFiles(client, "1360270874933989386");
     });
 
-    // Update PFP stats cache every 3 hours (8 times a day)
     cron.schedule("0 */3 * * *", async () => {
       console.log("📊 Running scheduled PFP stats update...");
       try {
@@ -297,8 +297,7 @@ module.exports = (client) => {
     });
 
     const commandsPath = "./src/commands";
-    const clientId = "1101256478632972369";
-    client.handleCommands(commandsPath, clientId);
+    client.handleCommands(commandsPath, config.clientId);
     client.handleEvents();
   } catch (fatal) {
     console.error("❌ Fatal error in bot.js init:", fatal);

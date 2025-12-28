@@ -1,5 +1,5 @@
 require("dotenv").config();
-const { token, databaseToken, topggToken, botlisttoken } = process.env;
+const config = require("./environment");
 const { connect } = require("mongoose");
 const { Client, GatewayIntentBits } = require("discord.js");
 const { ClusterClient, getInfo } = require("discord-hybrid-sharding");
@@ -131,7 +131,7 @@ process.on("uncaughtException", async (error) => {
 console.log(getInfo());
 console.log("Shard:", getInfo().SHARD_LIST, "Count:", getInfo().TOTAL_SHARDS);
 client.cluster = new ClusterClient(client);
-client.login(token).catch((err) => {
+client.login(config.token).catch((err) => {
   console.error("❌ Login failed:", err);
 });
 
@@ -158,11 +158,11 @@ client.cluster?.on("message", async (message) => {
   }
 });
 
-connect(databaseToken)
-  .then(() => console.log("Connected to MongoDB"))
+connect(config.databaseToken)
+  .then(() => console.log(`Connected to MongoDB [${config.environment}]`))
   .catch(console.error);
 
-const ap = AutoPoster(topggToken, client);
+const ap = AutoPoster(config.topggToken, client);
 ap.getStats = async () => {
   const response = await client.cluster.fetchClientValues("guilds.cache.size");
 
@@ -181,11 +181,11 @@ async function postToBotlistMe(client) {
     const serverCount = guildCounts.reduce((a, b) => a + b, 0);
 
     const response = await fetch(
-      "https://api.botlist.me/api/v1/bots/1101256478632972369/stats",
+      `https://api.botlist.me/api/v1/bots/${config.clientId}/stats`,
       {
         method: "POST",
         headers: {
-          Authorization: botlisttoken,
+          Authorization: config.botlisttoken,
           "Content-Type": "application/json",
         },
         body: JSON.stringify({

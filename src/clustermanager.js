@@ -1,12 +1,13 @@
 require("dotenv").config();
 const { ClusterManager } = require("discord-hybrid-sharding");
+const config = require("./environment");
 
 const manager = new ClusterManager(`${__dirname}/index.js`, {
   totalShards: "auto",
   shardsPerClusters: 5,
   totalClusters: "auto",
   mode: "process",
-  token: process.env.token,
+  token: config.token,
 });
 
 manager.on("clusterCreate", (cluster) => {

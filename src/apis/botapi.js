@@ -6,8 +6,7 @@ const { EmbedBuilder, ChannelType } = require("discord.js");
 const CommandUsage = require("../../mongo/models/usageSchema.js");
 const ProfileData = require("../../mongo/models/profileSchema.js");
 const Voting = require("../../mongo/models/votingSchema");
-const { botlistauth, discordsauth } = process.env;
-require("dotenv").config();
+const config = require("../environment.js");
 const { getInfo } = require("discord-hybrid-sharding");
 
 const VOTE_CHANNEL_ID = "1224815141921624186";
@@ -16,7 +15,7 @@ const GITHUB_GUILD_ID = "1101740375342845952";
 const VOTE_COOLDOWN_HOURS = 12;
 const STATS_CACHE_TTL = 2 * 60 * 1000;
 const MAX_EMBED_FIELD_LENGTH = 1024;
-const API_PORT = 2610;
+const API_PORT = config.ports.api;
 
 const { getTotalCommits } = require("../config/commandfunctions/commit.js");
 const {
@@ -74,10 +73,10 @@ setInterval(() => {
 }, RATE_LIMIT_WINDOW);
 
 function validateWebhookAuth(authHeader, platform) {
-  if (platform === "botlist" && authHeader !== botlistauth) {
+  if (platform === "botlist" && authHeader !== config.botlistauth) {
     return false;
   }
-  if (platform === "discords" && authHeader !== discordsauth) {
+  if (platform === "discords" && authHeader !== config.discordsauth) {
     return false;
   }
   return true;

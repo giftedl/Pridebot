@@ -12,7 +12,8 @@ module.exports = (client) => {
     `Profile API initialization started by Cluster ${getInfo().CLUSTER}.`
   );
   const app = express();
-  const port = 2612;
+  const config = require("../environment.js");
+  const port = config.ports.profile;
 
   app.use(express.json());
   app.use(express.urlencoded({ extended: true }));
