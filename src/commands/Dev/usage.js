@@ -11,13 +11,67 @@ module.exports = {
         .setName("public")
         .setDescription("Set to true to make the response visible to everyone")
         .setRequired(false)
-    )
-    .addStringOption((option) =>
-      option
-        .setName("amount")
-        .setDescription("Select how many commands you want to see (1-25)")
-        .setRequired(false)
     ),
+
+  categorizeCommand(commandName) {
+    const categories = {
+      Avatar: ["avatar-list", "avatar-view", "prideavatar", "useravatar-view"],
+      Fun: [
+        "gaydar",
+        "lgbtq",
+        "match",
+        "rizzdar",
+        "bidar",
+        "queerdar",
+        "transdar",
+        "usergaydar",
+        "userqueerdar",
+        "usertransdar",
+      ],
+      Pride: [
+        "pridemonth",
+        "genderfluid",
+        "nonbinary",
+        "transgender",
+        "asexual",
+        "bisexual",
+        "gay",
+        "lesbian",
+        "pansexual",
+        "queer",
+      ],
+      Profile: ["profile", "userprofile"],
+      Support: ["comingout", "mentalhealth", "transresources", "feedback"],
+      Terms: ["gender", "other", "pronouns", "sexuality"],
+      Tools: [
+        "help",
+        "nametester",
+        "partner",
+        "premium",
+        "pronountester",
+        "stats",
+        "vote",
+      ],
+      Dev: [
+        "blacklist",
+        "darid",
+        "errormode",
+        "id",
+        "pfpcleanup",
+        "pfpstats",
+        "termlist",
+        "topserver",
+        "usage",
+      ],
+    };
+
+    for (const [category, commands] of Object.entries(categories)) {
+      if (commands.includes(commandName.toLowerCase())) {
+        return category;
+      }
+    }
+    return "Other";
+  },
 
   async execute(interaction, client) {
     const idLists = await IDLists.findOne();
@@ -31,54 +85,64 @@ module.exports = {
       return;
     }
 
-    let amount = interaction.options.getString("amount");
-    amount = amount ? Math.min(Math.max(parseInt(amount, 10), 1), 25) : 24;
-
     const allUsages = await CommandUsage.find({}).sort({ count: -1 });
     const totalUsage = allUsages.reduce((acc, cmd) => acc + cmd.count, 0);
 
-    const topUsages = allUsages.slice(0, amount);
-    const otherUsages = allUsages.slice(amount);
+    const categorizedUsages = {};
+    const categories = [
+      "Avatar",
+      "Fun",
+      "Pride",
+      "Profile",
+      "Support",
+      "Terms",
+      "Tools",
+      "Dev",
+      "Other",
+    ];
 
-    const topUsageCount = topUsages.reduce((acc, cmd) => acc + cmd.count, 0);
-    const otherCommandsCount = totalUsage - topUsageCount;
-    const otherPercentage = ((otherCommandsCount / totalUsage) * 100).toFixed(
-      2
-    );
+    categories.forEach((category) => {
+      categorizedUsages[category] = [];
+    });
+
+    allUsages.forEach((cmd) => {
+      const category = this.categorizeCommand(cmd.commandName);
+      categorizedUsages[category].push(cmd);
+    });
 
     const usageEmbed = new EmbedBuilder()
       .setColor("#FF00EA")
-      .setTitle("Command Usage")
+      .setTitle("Command Usage by Category")
       .setDescription(
-        `Total Commands Used: **${totalUsage}** \nViewing **${topUsages.length}** commands \nTracking since <t:1711310418:f> (<t:1711310418:R>) `
+        `Total Commands Used: **${totalUsage}** \nShowing **all** commands \nTracking since <t:1711310418:f> (<t:1711310418:R>) `
       )
       .setTimestamp();
 
-    topUsages.forEach((cmd, index) => {
-      const percentage = ((cmd.count / totalUsage) * 100).toFixed(2);
+    categories.forEach((category) => {
+      const categoryCommands = categorizedUsages[category];
+      if (categoryCommands.length === 0) return;
+
+      const categoryTotal = categoryCommands.reduce(
+        (acc, cmd) => acc + cmd.count,
+        0
+      );
+      const categoryPercentage = ((categoryTotal / totalUsage) * 100).toFixed(
+        2
+      );
+
+      let commandList = categoryCommands
+        .map((cmd, index) => {
+          const percentage = ((cmd.count / totalUsage) * 100).toFixed(2);
+          return `**${cmd.commandName}**: ${cmd.count} (${percentage}%)`;
+        })
+        .join("\n");
+
       usageEmbed.addFields({
-        name: `${index + 1}. ${cmd.commandName}`,
-        value: `Used: ${cmd.count} times (${percentage}%)`,
+        name: `${category} (${categoryTotal} uses - ${categoryPercentage}%)`,
+        value: commandList || "No commands found",
         inline: true,
       });
     });
-
-    if (otherCommandsCount > 0) {
-      let otherCommandsDetail = otherUsages
-        .map(
-          (cmd) =>
-            `${cmd.commandName}: ${cmd.count} times (${(
-              (cmd.count / totalUsage) *
-              100
-            ).toFixed(2)}%)`
-        )
-        .join("\n");
-      usageEmbed.addFields({
-        name: `Other commands`,
-        value: otherCommandsDetail,
-        inline: false,
-      });
-    }
 
     const isPublic = interaction.options.getBoolean("public") || false;
     await interaction.reply({ embeds: [usageEmbed], ephemeral: !isPublic });
