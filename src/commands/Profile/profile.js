@@ -114,12 +114,20 @@ module.exports = {
             .setDescription("Your preferred name")
             .setRequired(true)
         )
+        .addStringOption(
+          stringOptionWithChoices(
+            "pronouns",
+            "Your pronouns | If you go by multiple pronouns, there are more options in /profile update",
+            pronounChoices,
+            true
+          )
+        )
         .addStringOption((option) =>
           option
             .setName("bio")
             .setDescription("Your bio | Add a new line with \\n")
             .setMaxLength(1024)
-            .setRequired(true)
+            .setRequired(false)
         )
         .addIntegerOption((option) =>
           option
@@ -127,14 +135,14 @@ module.exports = {
             .setDescription(
               "Your age (Ages: 13-99 | 0 for N/A | any other numbers will not be allowed)"
             )
-            .setRequired(true)
+            .setRequired(false)
         )
         .addStringOption(
           stringOptionWithChoices(
             "sexuality",
-            "Your sexual orientation",
+            "Your sexual orientation | If you have multiple, there are more options in /profile update",
             sexualityChoices,
-            true
+            false
           )
         )
         .addStringOption(
@@ -142,18 +150,15 @@ module.exports = {
             "romantic",
             "Your romantic orientation",
             romanticChoices,
-            true
+            false
           )
         )
         .addStringOption(
-          stringOptionWithChoices("gender", "Your gender", genderChoices, true)
-        )
-        .addStringOption(
           stringOptionWithChoices(
-            "pronouns",
-            "Your pronouns",
-            pronounChoices,
-            true
+            "gender",
+            "Your gender | If you identify with multiple genders, there are more options in /profile update",
+            genderChoices,
+            false
           )
         )
         .addStringOption((option) =>
