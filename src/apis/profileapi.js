@@ -4,6 +4,7 @@ const path = require("path");
 const fs = require("fs");
 const ProfileData = require("../../mongo/models/profileSchema.js");
 const IDLists = require("../../mongo/models/idSchema.js");
+const UserCommandUsage = require("../../mongo/models/userCommandUsageSchema.js");
 require("dotenv").config();
 const { getInfo } = require("discord-hybrid-sharding");
 
@@ -104,6 +105,32 @@ module.exports = (client) => {
       return res.json({ badges });
     } catch (error) {
       console.error(`Error fetching badges for ${userId}:`, error);
+      return res.status(500).json({ message: "Internal Server Error" });
+    }
+  });
+
+  app.get("/commandusage/:userId", async (req, res) => {
+    const { userId } = req.params;
+
+    try {
+      const userUsage = await UserCommandUsage.findOne({ userId });
+      
+      if (!userUsage || !userUsage.commandsUsed) {
+        return res.json({ totalCommands: 0, commands: [] });
+      }
+
+      const totalCommands = userUsage.commandsUsed.reduce((sum, cmd) => sum + cmd.usageCount, 0);
+      
+      return res.json({ 
+        totalCommands,
+        commands: userUsage.commandsUsed.map(cmd => ({
+          name: cmd.commandName,
+          count: cmd.usageCount,
+          firstUsed: cmd.firstUsedAt
+        }))
+      });
+    } catch (error) {
+      console.error(`Error fetching command usage for ${userId}:`, error);
       return res.status(500).json({ message: "Internal Server Error" });
     }
   });

@@ -195,6 +195,17 @@ async function loadProfile(searchedValue) {
       console.log("Could not fetch badges:", e);
     }
 
+    let commandUsage = null;
+    try {
+      const commandsResponse = await fetch(`${API_BASE_URL}/commandusage/${userId}`);
+      if (commandsResponse.ok) {
+        commandUsage = await commandsResponse.json();
+        console.log("Command usage:", commandUsage);
+      }
+    } catch (e) {
+      console.log("Could not fetch command usage:", e);
+    }
+
     if (profile.color) {
       document.documentElement.style.setProperty(
         "--profile-color",
@@ -207,7 +218,7 @@ async function loadProfile(searchedValue) {
       updateThemeColor(profile.color);
     }
 
-    await populateProfile(profile, discordUser, userId, userBadges);
+    await populateProfile(profile, discordUser, userId, userBadges, commandUsage);
     updatePageMeta(profile, discordUser);
 
     loadingContainer.style.display = "none";
@@ -220,7 +231,7 @@ async function loadProfile(searchedValue) {
   }
 }
 
-async function populateProfile(profile, discordUser, userId, userBadges) {
+async function populateProfile(profile, discordUser, userId, userBadges, commandUsage) {
   const avatarEl = document.getElementById("profile-avatar");
 
   const defaultAvatar = "https://cdn.discordapp.com/embed/avatars/0.png";
@@ -297,6 +308,13 @@ async function populateProfile(profile, discordUser, userId, userBadges) {
     document.getElementById("profile-age").textContent = profile.age;
     ageCard.style.display = "flex";
   }
+  
+  if (commandUsage && commandUsage.totalCommands > 0) {
+    const commandsCard = document.getElementById("commands-card");
+    document.getElementById("profile-commands").textContent = commandUsage.totalCommands.toLocaleString();
+    commandsCard.style.display = "flex";
+  }
+  
   if (profile.sexuality) {
     const sexualityCard = document.getElementById("sexuality-card");
     let sexualityText = profile.sexuality;

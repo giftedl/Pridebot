@@ -14,6 +14,7 @@ const chalk = require("chalk");
 
 const Profile = require("../../../../mongo/models/profileSchema");
 const IDLists = require("../../../../mongo/models/idSchema");
+const UserCommandUsage = require("../../../../mongo/models/userCommandUsageSchema");
 
 const { badgeMap } = require("./profilehelper");
 const { checkAndShowProfileFeedbackSurvey } = require("./profileSurveyHandler");
@@ -118,6 +119,12 @@ async function handleView(interaction, client) {
   const embedColor = profile.color || "#FF00EA";
   const idLists = await IDLists.findOne();
 
+  const userUsage = await UserCommandUsage.findOne({ userId });
+  let totalCommands = 0;
+  if (userUsage && userUsage.commandsUsed) {
+    totalCommands = userUsage.commandsUsed.reduce((sum, cmd) => sum + cmd.usageCount, 0);
+  }
+
   let badgeStr = "";
   if (profile.badgesVisible && idLists) {
     for (const [key, emoji] of Object.entries(badgeMap)) {
@@ -136,6 +143,11 @@ async function handleView(interaction, client) {
   fields.push({
     name: "Age",
     value: profile.age === 0 ? "N/A" : String(profile.age || "Not set"),
+    inline: true,
+  });
+  fields.push({
+    name: "Commands Run",
+    value: totalCommands.toString(),
     inline: true,
   });
   if (profile.premiumMember && profile.premiumVisible) {
