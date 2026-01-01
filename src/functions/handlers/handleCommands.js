@@ -7,6 +7,7 @@ const {
   ContextMenuCommandBuilder,
 } = require("discord.js");
 const path = require("path");
+const config = require("../../environment");
 
 module.exports = (client) => {
   client.handleCommands = async (commandsPath, clientId) => {
@@ -66,7 +67,7 @@ module.exports = (client) => {
       loadCommands(`${commandsPath}/${folder}`);
     });
 
-    const rest = new REST({ version: "10" }).setToken(process.env.token);
+    const rest = new REST({ version: "10" }).setToken(config.token);
     try {
       console.log(
         chalk.yellow.underline("Started refreshing application commands.")
