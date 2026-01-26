@@ -41,6 +41,92 @@
     <link rel="stylesheet" href="assets/fonts/font-awesome.min.css" />
     <link rel="stylesheet" href="assets/fonts/ionicons.min.css" />
     <script src="assets/js/search.js" defer></script>
+    <script src="assets/js/auth-client.js" defer></script>
+    <style>
+      .user-dropdown {
+        display: none;
+        align-items: center;
+        position: relative;
+        cursor: pointer;
+        margin-left: 20px;
+      }
+      
+      .user-avatar {
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        border: 2px solid var(--main-color);
+        transition: transform 0.3s ease;
+      }
+      
+      .user-avatar:hover {
+        transform: scale(1.1);
+      }
+      
+      .user-dropdown-menu {
+        display: none;
+        position: absolute;
+        top: 50px;
+        right: 0;
+        background: white;
+        border: 2px solid var(--main-color);
+        border-radius: 10px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        min-width: 200px;
+        z-index: 1000;
+      }
+      
+      .user-dropdown-menu.show {
+        display: block;
+      }
+      
+      .user-dropdown-menu a,
+      .user-dropdown-menu button {
+        display: block;
+        width: 100%;
+        padding: 12px 20px;
+        text-align: left;
+        background: none;
+        border: none;
+        color: #333;
+        text-decoration: none;
+        cursor: pointer;
+        transition: background 0.2s ease;
+        font-size: 14px;
+      }
+      
+      .user-dropdown-menu a:hover,
+      .user-dropdown-menu button:hover {
+        background: rgba(255, 0, 234, 0.1);
+      }
+      
+      .user-dropdown-menu a:first-child {
+        border-radius: 10px 10px 0 0;
+      }
+      
+      .user-dropdown-menu button:last-child {
+        border-radius: 0 0 10px 10px;
+        color: #fc8181;
+        border-top: 1px solid #e2e8f0;
+      }
+      
+      .login-btn {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border: none;
+        color: white;
+        padding: 8px 20px;
+        border-radius: 20px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        margin-left: 20px;
+      }
+      
+      .login-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+      }
+    </style>
   </head>
   <body>
     <nav class="navbar navbar-expand-lg fixed-top">
@@ -57,6 +143,19 @@
         <div class="navbar-nav ms-auto">
           <a class="nav-link" href="https://profile.pridebot.xyz">Profiles</a>
           <a class="nav-link" href="https://pridebot.xyz/support">Support</a>
+          <button class="login-btn" id="login-btn" onclick="AuthManager.login()">
+            <i class="fas fa-sign-in-alt"></i> Login
+          </button>
+          <div class="user-dropdown" id="user-dropdown" onclick="toggleUserDropdown(event)">
+            <img class="user-avatar" id="user-avatar" src="" alt="User Avatar">
+            <div class="user-dropdown-menu" id="user-dropdown-menu">
+              <a href="/profiles/profile.html"><i class="fas fa-user"></i> My Profile</a>
+              <a href="/webavatar.html"><i class="fas fa-images"></i> My Avatars</a>
+              <button onclick="AuthManager.logout()">
+                <i class="fas fa-sign-out-alt"></i> Logout
+              </button>
+            </div>
+          </div>
         </div>
       </div>
     </nav>
