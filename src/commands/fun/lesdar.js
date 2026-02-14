@@ -69,7 +69,7 @@ module.exports = {
     const embed = new EmbedBuilder()
       .setTitle(`How lesbian is ${userName}?`)
       .setDescription(
-        `<@${userid}> is **${utility_functions.number_format_commas(
+        `<@${userid}> is **${userId === "1201827969585393676" ? "1000000000000000000000000" : utility_functions.number_format_commas(
           meter
         )}% lesbian!**`
       )
